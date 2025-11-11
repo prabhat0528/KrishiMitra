@@ -2,23 +2,44 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.prompts import PromptTemplate
+from langchain.chains import LLMChain
+from langchain.memory import ConversationBufferMemory
 from dotenv import load_dotenv
 import os
 import json
 
+# Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
 
-# Allow frontend to connect
+# Allow frontend (React) to connect
 CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}}, supports_credentials=True)
 
+# Initialize Gemini model
 model = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=os.getenv("GEMINI_KEY"))
+
+# ✅ Create Conversation Memory for chat
+memory = ConversationBufferMemory(memory_key="chat_history", input_key="human_input")
+
+# Define the conversation prompt template
+chat_prompt = PromptTemplate(
+    input_variables=["chat_history", "human_input"],
+    template=(
+        "You are KrishiMitra, an AI farming assistant who helps Indian farmers with crop advice, "
+        "market trends, and sustainable practices. Use a professional tone and behave like an educated professional.\n\n"
+        "Conversation so far:\n{chat_history}\n\n"
+        "Farmer: {human_input}\nKrishiMitra:"
+    )
+)
+
+# Create chain with memory
+chat_chain = LLMChain(llm=model, prompt=chat_prompt, memory=memory)
 
 
 @app.route("/chat", methods=["POST", "OPTIONS"])
 def chat():
-    # Handle preflight (CORS) request
+    # Handle preflight request for CORS
     if request.method == "OPTIONS":
         response = jsonify({"message": "CORS preflight OK"})
         response.headers.add("Access-Control-Allow-Origin", "http://localhost:5173")
@@ -33,11 +54,11 @@ def chat():
         if not user_message:
             return jsonify({"error": "No message provided"}), 400
 
-        prompt = f"You are KrishiMitra, an AI farming assistant. Reply in a friendly and helpful tone.\nUser: {user_message}\nKrishiMitra:"
-        result = model.invoke(prompt)
-        response = result.content.strip()
+        # Invoke memory-enabled chat chain
+        result = chat_chain.invoke({"human_input": user_message})
+        response_text = result["text"].strip()
 
-        res = jsonify({"reply": response})
+        res = jsonify({"reply": response_text})
         res.headers.add("Access-Control-Allow-Origin", "http://localhost:5173")
         return res, 200
 
@@ -46,8 +67,7 @@ def chat():
         return jsonify({"error": str(e)}), 500
 
 
-# --- Other routes (unchanged) ---
-
+# --- Suggest crop summary route ---
 @app.route("/suggest-crop", methods=["POST"])
 def suggest_crop():
     try:
@@ -59,7 +79,11 @@ def suggest_crop():
 
         prompt = PromptTemplate(
             input_variables=["crop"],
-            template="Give a short summary about the crop '{crop}', including its ideal growing conditions, yield, and best fertilizer recommendations in JSON format with keys: description, ideal_conditions, fertilizer."
+            template=(
+                "Provide a concise overview of the crop '{crop}' "
+                "including its ideal growing conditions, yield, and best fertilizer recommendations "
+                "in JSON format with keys: description, ideal_conditions, fertilizer."
+            ),
         )
 
         llm_input = prompt.format(crop=crop)
@@ -75,6 +99,7 @@ def suggest_crop():
         return jsonify({"error": str(e)}), 500
 
 
+# --- Translate crop information route ---
 @app.route("/translate", methods=["POST"])
 def translate_text():
     data = request.get_json()
@@ -82,7 +107,10 @@ def translate_text():
     target_lang = data.get("target_lang", "en")
 
     try:
-        prompt = f"Translate the following crop information into {target_lang} language while keeping JSON structure:\n\n{text}"
+        prompt = (
+            f"Translate the following crop information into {target_lang} language "
+            f"while keeping the JSON structure intact:\n\n{text}"
+        )
         result = model.invoke(prompt)
         translated_output = result.content.strip()
 
@@ -95,6 +123,7 @@ def translate_text():
         return jsonify({"error": str(e)}), 500
 
 
+# --- Suggest similar crops based on conditions ---
 @app.route("/similar-crops", methods=["POST"])
 def similar_crops():
     data = request.get_json()
@@ -102,13 +131,13 @@ def similar_crops():
     conditions = data.get("ideal_conditions")
 
     try:
-        prompt = f"""
-        The crop '{crop}' grows under the following ideal conditions:
-        {json.dumps(conditions, indent=2)}.
-        Suggest 3 to 5 other crops that can grow in similar soil and climatic conditions in India.
-        Return them as a JSON list with key 'similar_crops'.
-        Example: {{"similar_crops": ["Wheat", "Barley", "Oats"]}}
-        """
+        prompt = (
+            f"The crop '{crop}' grows under the following ideal conditions:\n"
+            f"{json.dumps(conditions, indent=2)}.\n"
+            "Suggest 3 to 5 other crops that can grow in similar soil and climatic conditions in India. "
+            "Return them as a JSON list with key 'similar_crops'. "
+            "Example: {\"similar_crops\": [\"Wheat\", \"Barley\", \"Oats\"]}"
+        )
 
         result = model.invoke(prompt)
         output = result.content.strip()

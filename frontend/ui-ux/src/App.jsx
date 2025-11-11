@@ -5,6 +5,7 @@ import Predict from "./Pages/Predict";
 import Navbar from "./Pages/Navbar";
 import KnowMore from "./Pages/KnowMore";
 import Chatbot from "./Pages/Chatbot";
+import PredictYield from "./Pages/PredictYield";
 
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
         <Route path="/predict" element={<Predict />} />
         <Route path = "/know-more" element = {<KnowMore/>}/>
         <Route path = "/chatbot" element= {<Chatbot/>}/>
+        <Route path = "/predict-yield" element={<PredictYield/>}/>
       </Routes>
     </Router>
   );

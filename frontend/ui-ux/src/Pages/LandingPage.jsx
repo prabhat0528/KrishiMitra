@@ -35,6 +35,16 @@ const LandingPage = () => {
               🌱 Predict Crop
             </motion.button>
 
+
+            {/* Predict Yield Button */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              className="bg-yellow-500 text-white px-6 py-3 rounded-full font-semibold shadow-md hover:bg-yellow-600 transition"
+              onClick={() => navigate("/predict-yield")}
+            >
+              🌾 Predict Yield and More
+            </motion.button>
+
             <motion.button
               whileHover={{ scale: 1.05 }}
               className="bg-white border-2 border-green-600 text-green-700 px-6 py-3 rounded-full font-semibold shadow-md hover:bg-green-50 transition flex items-center space-x-2"
