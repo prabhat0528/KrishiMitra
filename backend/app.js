@@ -25,17 +25,18 @@ const sessionOptions = {
 };
 
 app.use(cors({
-    origin: "http://localhost:5173/",
+    origin: "http://localhost:5173",
     credentials: true
 }))
 
-
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use("/auth",authRoute);
 
 app.get("/", (req, res) => {
   res.send("This is root");
 });
 
-app.listen(8080, () => {
+app.listen(3000, () => {
   console.log("Server is active!");
 });

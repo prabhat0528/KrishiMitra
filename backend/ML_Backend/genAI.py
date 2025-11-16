@@ -19,7 +19,7 @@ CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}}, supports_cred
 # Initialize Gemini model
 model = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=os.getenv("GEMINI_KEY"))
 
-# ✅ Create Conversation Memory for chat
+#  Create Conversation Memory for chat
 memory = ConversationBufferMemory(memory_key="chat_history", input_key="human_input")
 
 # Define the conversation prompt template
@@ -35,6 +35,76 @@ chat_prompt = PromptTemplate(
 
 # Create chain with memory
 chat_chain = LLMChain(llm=model, prompt=chat_prompt, memory=memory)
+
+# -------------------Yield Insight-----------------------------------
+@app.route("/yield-insights", methods=["POST"])
+def yield_insights():
+    try:
+        data = request.get_json()
+
+        crop = data.get("Crop")
+        season = data.get("Season")
+        state = data.get("State")
+        area = data.get("Area")
+        rainfall = data.get("Annual_Rainfall")
+        fertilizer = data.get("Fertilizer")
+        pesticide = data.get("Pesticide")
+        predicted_yield = data.get("Predicted_Yield")
+
+        if not crop or not predicted_yield:
+            return jsonify({"error": "Crop name and predicted yield are required"}), 400
+
+        # Creating AI Prompt
+        prompt = f"""
+        You are KrishiMitra, an AI farming assistant.
+
+        A farmer has provided the following details:
+
+        Crop: {crop}
+        Season: {season}
+        State: {state}
+        Area (hectares): {area}
+        Annual Rainfall (mm): {rainfall}
+        Fertilizer Used (kg): {fertilizer}
+        Pesticide Used (kg): {pesticide}
+        Predicted Yield (quintals/ha): {predicted_yield}
+
+        Based on these details, provide a detailed & helpful report in strict JSON format:
+
+        {{
+            "yield_explanation": "Explain what factors caused this yield",
+            "soil_and_rainfall_analysis": "Short analysis of rainfall vs crop requirement",
+            "fertilizer_evaluation": "Is fertilizer amount good or needs adjustment?",
+            "pesticide_evaluation": "Comments on pesticide usage and pest risk",
+            "season_suitability": "Is this crop suitable for this season and state?",
+            "improvement_tips": [
+                "Tip 1",
+                "Tip 2",
+                "Tip 3"
+            ],
+            "recommended_crops": [
+                "Crop 1",
+                "Crop 2"
+            ]
+        }}
+
+        Keep the explanation practical and India-farming focused.
+        Return only JSON.
+        """
+
+        result = model.invoke(prompt)
+        output = result.content.strip()
+
+        # Remove code block formatting
+        if output.startswith("```json"):
+            output = output.replace("```json", "").replace("```", "")
+
+        parsed_output = json.loads(output)
+        return jsonify(parsed_output)
+
+    except Exception as e:
+        print("Error in /yield-insights:", e)
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/chat", methods=["POST", "OPTIONS"])

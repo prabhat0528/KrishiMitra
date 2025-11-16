@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const PredictYield = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +15,8 @@ const PredictYield = () => {
 
   const [predictedYield, setPredictedYield] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate(); // 👈 Added
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -33,9 +36,48 @@ const PredictYield = () => {
 
       const data = await response.json();
       setPredictedYield(data.predicted_yield || data.message || "Prediction failed");
+
+      // Save prediction for next page
+      localStorage.setItem(
+        "km_prediction",
+        JSON.stringify({
+          predicted_yield: data.predicted_yield,
+          formData,
+        })
+      );
     } catch (error) {
       console.error("Error fetching prediction:", error);
       setPredictedYield("Error fetching prediction. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  
+  const handleKnowMore = async () => {
+    try {
+      setLoading(true);
+
+      const response = await fetch("http://127.0.0.1:8080/yield-insights", {
+        method: "POST",
+        withCredentials: true,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          crop: formData.Crop,
+          state: formData.State,
+        }),
+      });
+
+      const data = await response.json();
+
+      // Save additional info
+      localStorage.setItem("km_more_info", JSON.stringify(data));
+
+      // Move to next page
+      navigate("/yield_details");
+    } catch (error) {
+      console.error("Error fetching details:", error);
+      alert("Something went wrong while fetching more details.");
     } finally {
       setLoading(false);
     }
@@ -102,9 +144,7 @@ const PredictYield = () => {
 
           {/* Area */}
           <div>
-            <label className="block font-medium text-gray-700 mb-1">
-              Area (in hectares)
-            </label>
+            <label className="block font-medium text-gray-700 mb-1">Area (in hectares)</label>
             <input
               type="number"
               name="Area"
@@ -118,9 +158,7 @@ const PredictYield = () => {
 
           {/* Annual Rainfall */}
           <div>
-            <label className="block font-medium text-gray-700 mb-1">
-              Annual Rainfall (mm)
-            </label>
+            <label className="block font-medium text-gray-700 mb-1">Annual Rainfall (mm)</label>
             <input
               type="number"
               name="Annual_Rainfall"
@@ -134,9 +172,7 @@ const PredictYield = () => {
 
           {/* Fertilizer */}
           <div>
-            <label className="block font-medium text-gray-700 mb-1">
-              Fertilizer Used (kg)
-            </label>
+            <label className="block font-medium text-gray-700 mb-1">Fertilizer Used (kg)</label>
             <input
               type="number"
               name="Fertilizer"
@@ -150,9 +186,7 @@ const PredictYield = () => {
 
           {/* Pesticide */}
           <div>
-            <label className="block font-medium text-gray-700 mb-1">
-              Pesticide Used (kg)
-            </label>
+            <label className="block font-medium text-gray-700 mb-1">Pesticide Used (kg)</label>
             <input
               type="number"
               name="Pesticide"
@@ -181,17 +215,37 @@ const PredictYield = () => {
         {/* Predicted Yield Output */}
         {predictedYield && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="mt-8 p-5 bg-green-100 border border-green-300 rounded-lg text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="mt-8 p-6 rounded-xl text-center 
+                    bg-gradient-to-r from-emerald-50 to-green-100 
+                    border border-emerald-300 shadow-xl"
+        >
+          <h2 className="text-xl font-bold text-emerald-800 tracking-wide">
+            Predicted Yield
+          </h2>
+
+          <p className="text-3xl font-extrabold text-green-900 mt-2 drop-shadow-sm">
+            {predictedYield}
+          </p>
+
+          <p className="mt-3 text-gray-700 font-medium">
+            Want detailed insights based on your crop?
+          </p>
+
+          {/*  KNOW MORE BUTTON */}
+          <motion.button
+            whileHover={{ scale: 1.07 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleKnowMore}
+            disabled={loading}
+            className="mt-5 bg-emerald-600 text-white font-semibold 
+                      py-3 px-12 rounded-lg shadow-lg hover:bg-emerald-700
+                      transition-all duration-200"
           >
-            <h2 className="text-lg font-semibold text-green-700">
-              Predicted Yield:
-            </h2>
-            <p className="text-xl font-bold text-green-800 mt-1">
-              {predictedYield}
-            </p>
-          </motion.div>
+            {loading ? "Loading..." : "Know More"}
+          </motion.button>
+        </motion.div>
         )}
       </motion.div>
     </div>
