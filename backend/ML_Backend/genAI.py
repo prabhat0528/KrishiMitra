@@ -7,6 +7,9 @@ from langchain.memory import ConversationBufferMemory
 from dotenv import load_dotenv
 import os
 import json
+from datetime import datetime
+from pymongo import MongoClient
+import uuid
 
 # Load environment variables
 load_dotenv()
@@ -15,6 +18,35 @@ app = Flask(__name__)
 
 # Allow frontend (React) to connect
 CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}}, supports_credentials=True)
+
+# ------------------- MongoDB Setup -------------------
+mongo_uri = os.getenv("MONGO_URL")
+client = MongoClient(mongo_uri)
+db = client["krishimitra"]
+chat_collection = db["chat_history"]
+
+
+def save_message(session_id, sender, message):
+    chat_collection.insert_one({
+        "session_id": session_id,
+        "sender": sender,
+        "message": message,
+        "timestamp": datetime.utcnow()
+    })
+
+
+def load_previous_chats(session_id):
+    history = chat_collection.find({"session_id": session_id}).sort("timestamp", 1)
+    formatted = ""
+
+    for msg in history:
+        if msg["sender"] == "user":
+            formatted += f"Farmer: {msg['message']}\n"
+        else:
+            formatted += f"KrishiMitra: {msg['message']}\n"
+
+    return formatted
+   
 
 # Initialize Gemini model
 model = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=os.getenv("GEMINI_KEY"))

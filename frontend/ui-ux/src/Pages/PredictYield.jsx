@@ -16,7 +16,7 @@ const PredictYield = () => {
   const [predictedYield, setPredictedYield] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const navigate = useNavigate(); // 👈 Added
+  const navigate = useNavigate(); 
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -55,33 +55,35 @@ const PredictYield = () => {
 
   
   const handleKnowMore = async () => {
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      const response = await fetch("http://127.0.0.1:8080/yield-insights", {
-        method: "POST",
-        withCredentials: true,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          crop: formData.Crop,
-          state: formData.State,
-        }),
-      });
+    const response = await fetch("http://127.0.0.1:8080/yield-insights", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        Crop: formData.Crop,
+        Season: formData.Season,
+        State: formData.State,
+        Area: formData.Area,
+        Annual_Rainfall: formData.Annual_Rainfall,
+        Fertilizer: formData.Fertilizer,
+        Pesticide: formData.Pesticide,
+        Predicted_Yield: predictedYield,
+      }),
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      // Save additional info
-      localStorage.setItem("km_more_info", JSON.stringify(data));
-
-      // Move to next page
-      navigate("/yield_details");
-    } catch (error) {
-      console.error("Error fetching details:", error);
-      alert("Something went wrong while fetching more details.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    localStorage.setItem("km_more_info", JSON.stringify(data));
+    navigate("/yield_details");
+  } catch (error) {
+    console.error("Error fetching details:", error);
+    alert("Something went wrong while fetching more details.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-200 flex flex-col justify-center items-center p-6">

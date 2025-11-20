@@ -17,7 +17,7 @@ export default function AuthProvider({ children }) {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Restore user session from localStorage on page load
+ 
   useEffect(() => {
     const savedUser = localStorage.getItem("km_user");
     if (savedUser) {

@@ -9,20 +9,20 @@ from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.metrics import accuracy_score, mean_squared_error, r2_score
 
 # -----------------------------------------------------------
-# 🌱 Flask App Initialization
+#  Flask App Initialization
 # -----------------------------------------------------------
 app = Flask(__name__)
 CORS(app)
 
 # -----------------------------------------------------------
-# 📂 File Paths
+#  File Paths
 # -----------------------------------------------------------
 BASE_DIR = os.path.dirname(__file__)
 CROP_RECOMMENDATION_CSV = os.path.join(BASE_DIR, "Crop_recommendation.csv")
 CROP_YIELD_CSV = os.path.join(BASE_DIR, "crop_yield.csv")
 
 # -----------------------------------------------------------
-# 🌾 Crop Recommendation Model
+#  Crop Recommendation Model
 # -----------------------------------------------------------
 print("\n[INFO] Loading Crop Recommendation Model...")
 
@@ -42,7 +42,7 @@ crop_model.fit(X_train, y_train)
 
 y_pred = crop_model.predict(X_test)
 accuracy = accuracy_score(y_test, y_pred)
-print(f"✅ Crop Recommendation Model trained successfully (Accuracy: {accuracy * 100:.2f}%)")
+print(f" Crop Recommendation Model trained successfully (Accuracy: {accuracy * 100:.2f}%)")
 
 
 def predict_crop(input_data: dict) -> str:
@@ -59,7 +59,7 @@ def predict_crop(input_data: dict) -> str:
 
 
 # -----------------------------------------------------------
-# 🌾 Crop Yield Prediction Model
+#  Crop Yield Prediction Model
 # -----------------------------------------------------------
 print("\n[INFO] Loading Crop Yield Prediction Model...")
 
@@ -97,7 +97,7 @@ yield_model.fit(X_train_y, y_train_y)
 y_pred_yield = yield_model.predict(X_test_y)
 mse = mean_squared_error(y_test_y, y_pred_yield)
 r2 = r2_score(y_test_y, y_pred_yield)
-print(f"✅ Crop Yield Model trained (R²: {r2:.3f}, RMSE: {np.sqrt(mse):.3f})")
+print(f" Crop Yield Model trained (R²: {r2:.3f}, RMSE: {np.sqrt(mse):.3f})")
 
 
 def predict_yield(input_data: dict) -> float:
@@ -115,7 +115,7 @@ def predict_yield(input_data: dict) -> float:
         # Prepare a DataFrame
         df_input = pd.DataFrame([processed_data])
 
-        # Apply scaling to numeric features (all at once ✅)
+        # Apply scaling to numeric features 
         df_input[numeric_features] = scaler_yield.transform(df_input[numeric_features])
 
         # Predict
@@ -127,7 +127,7 @@ def predict_yield(input_data: dict) -> float:
 
 
 # -----------------------------------------------------------
-# 🚀 Routes
+#  Routes
 # -----------------------------------------------------------
 @app.route("/")
 def home():
@@ -181,7 +181,7 @@ def predict_yield_route():
 
 
 # -----------------------------------------------------------
-# 🧠 Run Flask App
+# Run Flask App
 # -----------------------------------------------------------
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
