@@ -173,7 +173,7 @@ def predict_yield_route():
         prediction = predict_yield(processed_data)
         return jsonify({
             "status": "success",
-            "predicted_yield": f"{prediction} tons per hectare"
+            "predicted_yield": f"{prediction} metric tons per hectare"
         })
 
     except Exception as e:
