@@ -1,0 +1,24 @@
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+
+  # Prometheus self-monitoring
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["prometheus:9090"]
+
+  # # Node Backend Metrics
+  # - job_name: "node-backend"
+  #   static_configs:
+  #     - targets: ["node-backend:3000"]
+
+  # ML Flask Backend Metrics
+  - job_name: "ml-backend"
+    static_configs:
+      - targets: ["ml-backend:5000"]
+
+  # GenAI Flask Backend Metrics
+  - job_name: "genai-backend"
+    static_configs:
+      - targets: ["genai-backend:5001"]

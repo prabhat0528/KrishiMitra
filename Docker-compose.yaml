@@ -1,0 +1,79 @@
+version: "3.9"
+
+services:
+
+  # ---------------------------
+  # React + Vite Frontend
+  # ---------------------------
+  frontend:
+    build: ./frontend
+    container_name: krishimitra-frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - ml-backend
+      - genai-backend
+    restart: always
+
+  # ---------------------------
+  # Node.js Backend
+  # ---------------------------
+  # node-backend:
+  #   build: ./backend
+  #   container_name: krishimitra-node-backend
+  #   ports:
+  #     - "3000:3000"
+  #   env_file:
+  #     - ./backend/.env
+  #   restart: always
+
+  # ---------------------------
+  # ML Backend
+  # ---------------------------
+  ml-backend:
+    build: ./backend/ML_Backend/Machine_Learning
+    container_name: krishimitra-ml-backend
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./backend/.env
+    restart: always
+
+  # ---------------------------
+  # GenAI Backend
+  # ---------------------------
+  genai-backend:
+    build: ./backend/ML_Backend/GenAI
+    container_name: krishimitra-genai-backend
+    ports:
+      - "5001:5001"
+    env_file:
+      - ./backend/.env
+    restart: always
+
+  # ---------------------------
+  # Prometheus
+  # ---------------------------
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    # volumes:
+    #   - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    restart: always
+
+  # ---------------------------
+  # Grafana
+  # ---------------------------
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    # volumes:
+    #   - grafana-storage:/var/lib/grafana
+    restart: always
+    depends_on:
+      - prometheus
+
