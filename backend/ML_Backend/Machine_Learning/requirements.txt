@@ -1,0 +1,12 @@
+
+Flask
+flask-cors
+
+pandas
+numpy
+
+scikit-learn
+prometheus_client
+
+gunicorn
+

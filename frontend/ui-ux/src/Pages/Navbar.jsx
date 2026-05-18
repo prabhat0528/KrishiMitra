@@ -39,7 +39,7 @@ function Navbar() {
         <div className="hidden md:flex items-center space-x-10 text-gray-700 font-medium">
           <motion.a
             whileHover={{ scale: 1.08, color: "#16a34a" }}
-            href="#features"
+            href="/features"
             className="transition-all cursor-pointer"
           >
             Features
@@ -47,7 +47,7 @@ function Navbar() {
 
           <motion.a
             whileHover={{ scale: 1.08, color: "#16a34a" }}
-            href="#about"
+            href="/about"
             className="transition-all cursor-pointer"
           >
             About
@@ -111,7 +111,7 @@ function Navbar() {
               </div>
 
               <a
-                href="#features"
+                href="/features"
                 onClick={() => setMenuOpen(false)}
                 className="block text-lg font-medium text-gray-700 hover:text-green-700"
               >
@@ -119,7 +119,7 @@ function Navbar() {
               </a>
 
               <a
-                href="#about"
+                href="/about"
                 onClick={() => setMenuOpen(false)}
                 className="block text-lg font-medium text-gray-700 hover:text-green-700"
               >

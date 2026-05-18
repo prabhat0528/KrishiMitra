@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const CHAT_STORAGE_KEY = "chatHistory_v1";
 
-// small utility to load/save localStorage
+
 const loadChats = () => {
   try {
     return JSON.parse(localStorage.getItem(CHAT_STORAGE_KEY)) || [];

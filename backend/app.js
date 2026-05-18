@@ -37,6 +37,6 @@ app.get("/", (req, res) => {
   res.send("This is root");
 });
 
-app.listen(3000, () => {
+app.listen(5002, () => {
   console.log("Server is active!");
 });

@@ -1,0 +1,11 @@
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: "genAI"
+    static_configs:
+      - targets: ["GenAI:5001"]
+
+  - job_name: "machine_learning"
+    static_configs:
+      - targets: ["Machine_learning:5000"]

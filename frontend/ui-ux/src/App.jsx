@@ -7,6 +7,9 @@ import Chatbot from "./Pages/Chatbot";
 import PredictYield from "./Pages/PredictYield";
 import AuthPage from "./Pages/AuthPage";
 import YieldDetails from "./Pages/YieldDetails";
+import MandiPrices from "./Pages/MandiPrices";
+import Features from "./Pages/Features";
+import About from "./Pages/About";
 
 function App() {
   return (
@@ -20,6 +23,9 @@ function App() {
         <Route path="/predict-yield" element={<PredictYield />} />
         <Route path="/auth" element={<AuthPage />} />
         <Route path = "/yield_details" element={<YieldDetails/>}/>
+        <Route path = "/mandiprice" element={<MandiPrices/>}/>
+        <Route path = "/features" element={<Features/>}/>
+        <Route path="/about" element={<About/>}/>
       </Routes>
     </>
   );

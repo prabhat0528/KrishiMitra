@@ -1,0 +1,14 @@
+FROM node:20
+
+WORKDIR ./app
+
+copy package*.json ./
+
+RUN npm install
+
+COPY . .
+
+EXPOSE 5002
+
+CMD ["node","app.js"]
+
