@@ -10,7 +10,6 @@ services:
     depends_on:
       - genai
       - machine_learning
-      - node-backend
     env_file:
       - ./backend/.env
     restart: always
@@ -31,21 +30,26 @@ services:
       - "5000:5000"
     restart: always
 
-  node-backend:
-    build: ./backend
-    container_name: node-backend
-    ports:
-      - "5002:5002"
-    restart: always
+  # node-backend:
+  #   build: ./backend
+  #   container_name: node-backend
+  #   ports:
+  #     - "5002:5002"
+  #   restart: always
 
   prometheus:
     image: prom/prometheus
     container_name: prometheus
     ports:
       - "9090:9090"
+
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+
     depends_on:
       - genai
       - machine_learning
+
     restart: always
 
   grafana:
@@ -53,6 +57,8 @@ services:
     container_name: grafana
     ports:
       - "3000:3000"
+
     depends_on:
       - prometheus
+
     restart: always

@@ -3,19 +3,16 @@ global:
 
 scrape_configs:
 
-  # Prometheus self-monitoring
   - job_name: "prometheus"
     static_configs:
       - targets: ["prometheus:9090"]
 
-  # ML Backend Metrics
-  - job_name: "ml-backend"
+  - job_name: "machine_learning"
     metrics_path: /metrics
     static_configs:
-      - targets: ["ml-backend:5002"]
+      - targets: ["machine_learning:5000"]
 
-  # GenAI Backend Metrics
-  - job_name: "genai-backend"
+  - job_name: "genai"
     metrics_path: /metrics
     static_configs:
-      - targets: ["genai-backend:5003"]
+      - targets: ["genai:5001"]
