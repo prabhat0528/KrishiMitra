@@ -301,7 +301,7 @@ def predict_yield(input_data: dict) -> float:
 def home():
 
     return jsonify({
-        "message": "KrishiMitra ML Backend is running successfully! Good to go....."
+        "message": "KrishiMitra ML Backend is running successfully! Good to go.....Nicely..."
     })
 
 
